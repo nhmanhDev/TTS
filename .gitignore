@@ -1,0 +1,14 @@
+# Python virtual environment
+.venv/
+__pycache__/
+*.pyc
+
+# Local model checkpoints (very large weights)
+checkpoints/
+
+# User outputs
+outputs/
+
+# OS specific files
+.DS_Store
+Thumbs.db
