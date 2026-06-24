@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vietnamese TTS Benchmark & Testing Hub</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Custom Style -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- Title Header -->
+    <header class="main-header" id="main-header">
+      <div class="logo-area">
+        <i class="fa-solid fa-microphone-lines icon-gradient"></i>
+        <h1>Vietnamese TTS <span class="accent-text">Benchmark Hub</span></h1>
+      </div>
+      <p class="subtitle">Đánh giá và so sánh chất lượng, tốc độ, tài nguyên CPU/GPU của các mô hình Text-To-Speech tiếng Việt hàng đầu.</p>
+    </header>
+
+    <!-- Tab Navigation -->
+    <nav class="tab-navigation" id="tab-navigation">
+      <button class="tab-btn active" id="tab-single-btn"><i class="fa-solid fa-bullseye"></i> Chạy Từng Mô Hình</button>
+      <button class="tab-btn" id="tab-compare-btn"><i class="fa-solid fa-scale-balanced"></i> So Sánh Song Song</button>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      
+      <!-- TAB 1: Single Model Test -->
+      <section class="tab-pane active" id="tab-single">
+        <div class="grid-layout">
+          
+          <!-- Column Left: Control Panel -->
+          <div class="card glass panel-control">
+            <h2 class="card-title"><i class="fa-solid fa-sliders"></i> Bộ điều khiển cấu hình</h2>
+            
+            <div class="form-group">
+              <label for="select-model">1. Chọn mô hình TTS</label>
+              <select id="select-model" class="custom-select">
+                <!-- Will be populated dynamically -->
+              </select>
+              <p class="model-description" id="model-desc"></p>
+            </div>
+
+            <div class="form-group">
+              <label for="select-voice">2. Chọn Giọng mẫu (Pre-trained Voice)</label>
+              <select id="select-voice" class="custom-select">
+                <!-- Will be populated dynamically -->
+              </select>
+            </div>
+
+            <!-- Voice Sample Player -->
+            <div class="voice-sample-box" id="voice-sample-box">
+              <div class="sample-header">
+                <span><i class="fa-solid fa-volume-high"></i> Giọng mẫu có sẵn (Nghe ngay)</span>
+              </div>
+              <div class="sample-player-container">
+                <audio id="audio-demo-player" controls src=""></audio>
+              </div>
+              <p class="sample-tip">Phát tức thì, không tốn tài nguyên GPU máy của anh.</p>
+            </div>
+
+            <div class="form-group">
+              <label for="input-text">3. Văn bản tiếng Việt cần đọc</label>
+              <textarea id="input-text" class="custom-textarea" rows="4">Giữa một buổi chiều yên tĩnh, cô ấy kể lại câu chuyện bằng một giọng nói ấm áp và chậm rãi. Tiếng Việt là một ngôn ngữ rất đẹp và truyền cảm.</textarea>
+            </div>
+
+            <div class="form-group">
+              <div class="slider-header">
+                <label for="slider-speed">Tốc độ đọc (Speed)</label>
+                <span class="slider-value" id="speed-value">1.0x</span>
+              </div>
+              <div class="slider-container">
+                <input type="range" id="slider-speed" min="0.5" max="2.0" step="0.1" value="1.0" class="custom-slider">
+                <button class="reset-btn" id="btn-reset-speed" title="Đặt lại mặc định"><i class="fa-solid fa-rotate-left"></i></button>
+              </div>
+            </div>
+
+            <button class="btn btn-primary btn-block" id="btn-synthesize">
+              <span class="btn-text"><i class="fa-solid fa-rocket"></i> Tạo Giọng Nói & Đánh Giá</span>
+              <span class="loading-spinner hidden"><i class="fa-solid fa-circle-notch fa-spin"></i> Đang chạy model...</span>
+            </button>
+          </div>
+
+          <!-- Column Right: Output & Benchmark -->
+          <div class="card glass panel-result">
+            <h2 class="card-title"><i class="fa-solid fa-square-poll-vertical"></i> Kết quả tổng hợp & Benchmark</h2>
+            
+            <div class="placeholder-area" id="result-placeholder">
+              <i class="fa-solid fa-wave-square wave-icon"></i>
+              <p>Chưa có dữ liệu tổng hợp. Chọn cấu hình bên trái và bấm nút khởi chạy để thực hiện đánh giá.</p>
+            </div>
+
+            <div class="result-area hidden" id="result-area">
+              <div class="audio-output-box">
+                <h3><i class="fa-solid fa-headphones"></i> Âm thanh tạo ra:</h3>
+                <audio id="audio-output-player" controls src=""></audio>
+              </div>
+
+              <!-- Phonemes Display -->
+              <div class="phonemes-box hidden" id="phonemes-box">
+                <h4><i class="fa-solid fa-keyboard"></i> Ký hiệu âm vị (Phonemes):</h4>
+                <div class="phonemes-content" id="phonemes-text"></div>
+              </div>
+
+              <!-- Benchmark Tables/Cards -->
+              <div class="stats-grid">
+                
+                <div class="stat-card border-emerald">
+                  <div class="stat-icon text-emerald"><i class="fa-solid fa-gauge-high"></i></div>
+                  <div class="stat-info">
+                    <span class="stat-label">Tốc độ xử lý (RTF)</span>
+                    <span class="stat-val text-emerald" id="stat-rtf">0.0000</span>
+                    <span class="stat-desc" id="rtf-efficiency">Nhanh hơn thời gian thực</span>
+                  </div>
+                </div>
+
+                <div class="stat-card border-blue">
+                  <div class="stat-icon text-blue"><i class="fa-solid fa-stopwatch"></i></div>
+                  <div class="stat-info">
+                    <span class="stat-label">Thời gian chạy model</span>
+                    <span class="stat-val" id="stat-latency">0.00s</span>
+                    <span class="stat-desc">Độ trễ xử lý (Latency)</span>
+                  </div>
+                </div>
+
+                <div class="stat-card border-rose">
+                  <div class="stat-icon text-rose"><i class="fa-solid fa-microchip"></i></div>
+                  <div class="stat-info">
+                    <span class="stat-label">VRAM đỉnh GPU (Peak VRAM)</span>
+                    <span class="stat-val text-rose" id="stat-vram-peak">0.00 MB</span>
+                    <span class="stat-desc">Mức tiêu thụ VRAM tối đa</span>
+                  </div>
+                </div>
+
+                <div class="stat-card border-amber">
+                  <div class="stat-icon text-amber"><i class="fa-solid fa-memory"></i></div>
+                  <div class="stat-info">
+                    <span class="stat-label">RAM hệ thống tiêu thụ</span>
+                    <span class="stat-val text-amber" id="stat-ram">0.00 MB</span>
+                    <span class="stat-desc">Mức RAM CPU cấp phát thêm</span>
+                  </div>
+                </div>
+
+              </div>
+
+              <div class="metadata-table-box">
+                <table class="metadata-table">
+                  <tr>
+                    <td>Kích thước file Audio:</td>
+                    <td id="meta-duration">0.00 giây</td>
+                  </tr>
+                  <tr>
+                    <td>Tần số lấy mẫu (Sample Rate):</td>
+                    <td id="meta-sample-rate">24000 Hz</td>
+                  </tr>
+                  <tr>
+                    <td>VRAM nạp thêm tĩnh:</td>
+                    <td id="meta-vram-allocated">0.00 MB</td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+
+            <!-- Error Banner -->
+            <div class="error-banner hidden" id="error-banner">
+              <h3><i class="fa-solid fa-triangle-exclamation"></i> Lỗi trong quá trình chạy:</h3>
+              <p id="error-message"></p>
+            </div>
+
+          </div>
+          
+        </div>
+      </section>
+
+      <!-- TAB 2: Side-by-Side Comparison -->
+      <section class="tab-pane" id="tab-compare">
+        <div class="comparison-input-box card glass">
+          <h2 class="card-title"><i class="fa-solid fa-square-pen"></i> Nhập văn bản so sánh chung</h2>
+          <div class="form-group">
+            <textarea id="compare-text-input" class="custom-textarea" rows="2">Chào anh! Đây là chế độ so sánh song song giữa mô hình Kokoro và mô hình Meta VITS.</textarea>
+          </div>
+          <div class="slider-and-btn-row">
+            <div class="form-group flex-1">
+              <div class="slider-header">
+                <label for="compare-slider-speed">Tốc độ đọc chung (Speed)</label>
+                <span class="slider-value" id="compare-speed-value">1.0x</span>
+              </div>
+              <input type="range" id="compare-slider-speed" min="0.5" max="2.0" step="0.1" value="1.0" class="custom-slider">
+            </div>
+            <button class="btn btn-primary" id="btn-compare">
+              <span class="btn-text"><i class="fa-solid fa-scale-balanced"></i> Bắt đầu Chạy Benchmark So Sánh</span>
+              <span class="loading-spinner hidden"><i class="fa-solid fa-circle-notch fa-spin"></i> Đang chạy so sánh...</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="comparison-grid">
+          
+          <!-- Column 1: Kokoro Card -->
+          <div class="card glass compare-model-card" id="compare-kokoro-card">
+            <div class="compare-card-header bg-gradient-blue">
+              <h3>🌟 1. Kokoro-Vietnamese</h3>
+              <span class="badge">82M params</span>
+            </div>
+            <div class="compare-card-body">
+              <div class="voice-name">Giọng mẫu mặc định: <strong>Diễm Trinh (Miền Nam)</strong></div>
+              
+              <div class="compare-audio-placeholder" id="comp-k-placeholder">Chờ chạy benchmark...</div>
+              
+              <div class="compare-audio-area hidden" id="comp-k-area">
+                <audio id="comp-k-audio" controls src=""></audio>
+                <div class="phonemes-preview-box">
+                  <strong>Âm vị:</strong> <span id="comp-k-phonemes"></span>
+                </div>
+                <table class="compare-stats-table">
+                  <tr>
+                    <td>Thời gian chạy:</td>
+                    <td class="bold" id="comp-k-time">0.00s</td>
+                  </tr>
+                  <tr>
+                    <td>Chỉ số RTF:</td>
+                    <td class="bold text-emerald" id="comp-k-rtf">0.0000</td>
+                  </tr>
+                  <tr>
+                    <td>VRAM GPU đỉnh:</td>
+                    <td class="bold text-rose" id="comp-k-vram">0.00 MB</td>
+                  </tr>
+                  <tr>
+                    <td>RAM CPU nạp thêm:</td>
+                    <td class="bold text-amber" id="comp-k-ram">0.00 MB</td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Column 2: Meta VITS Card -->
+          <div class="card glass compare-model-card" id="compare-vits-card">
+            <div class="compare-card-header bg-gradient-purple">
+              <h3>🏷️ 2. Meta MMS VITS</h3>
+              <span class="badge">VITS architecture</span>
+            </div>
+            <div class="compare-card-body">
+              <div class="voice-name">Giọng mẫu mặc định: <strong>Meta MMS Speaker</strong></div>
+              
+              <div class="compare-audio-placeholder" id="comp-v-placeholder">Chờ chạy benchmark...</div>
+              
+              <div class="compare-audio-area hidden" id="comp-v-area">
+                <audio id="comp-v-audio" controls src=""></audio>
+                <div class="phonemes-preview-box">
+                  <strong>Âm vị:</strong> <span>*(Mô hình này không xuất ra phoneme)*</span>
+                </div>
+                <table class="compare-stats-table">
+                  <tr>
+                    <td>Thời gian chạy:</td>
+                    <td class="bold" id="comp-v-time">0.00s</td>
+                  </tr>
+                  <tr>
+                    <td>Chỉ số RTF:</td>
+                    <td class="bold text-emerald" id="comp-v-rtf">0.0000</td>
+                  </tr>
+                  <tr>
+                    <td>VRAM GPU đỉnh:</td>
+                    <td class="bold text-rose" id="comp-v-vram">0.00 MB</td>
+                  </tr>
+                  <tr>
+                    <td>RAM CPU nạp thêm:</td>
+                    <td class="bold text-amber" id="comp-v-ram">0.00 MB</td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Comparison Visual Chart -->
+        <div class="card glass comparison-chart-card">
+          <h2 class="card-title"><i class="fa-solid fa-chart-simple"></i> Biểu đồ so sánh trực quan hiệu năng</h2>
+          <div class="chart-container-box">
+            <canvas id="benchmarkChart"></canvas>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>Bản quyền thuộc về nhmanhDev/TTS &copy; 2026. Tải các model từ Hugging Face.</p>
+    </footer>
+
+  </div>
+  
+  <!-- Script Logic -->
+  <script src="app.js"></script>
+</body>
+</html>

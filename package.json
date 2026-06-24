@@ -1,0 +1,23 @@
+{
+  "name": "vietnamese-tts-benchmark",
+  "version": "1.0.0",
+  "description": "Unified Vietnamese TTS Benchmark & Testing Hub using Node.js and Express",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "tts",
+    "vietnamese",
+    "benchmark",
+    "kokoro",
+    "vits",
+    "voxcpm"
+  ],
+  "author": "nhmanhDev",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
+  }
+}
