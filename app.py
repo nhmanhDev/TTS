@@ -9,9 +9,10 @@ import gradio as gr
 from pathlib import Path
 
 # Import our wrappers
-from models.kokoro_wrapper import KokoroVietnameseWrapper
-from models.vits_wrapper import MMSVitsWrapper
 from models.voxcpm_wrapper import VoxCPMWrapper
+from models.omnivoice_wrapper import OmniVoiceWrapper
+from models.moss_tts_wrapper import MOSSTTSLocalTransformerWrapper, MOSSTTSWrapper
+from models.higgs_audio_wrapper import HiggsAudioV3Wrapper
 
 # Create necessary directories
 outputs_dir = Path("outputs")
@@ -22,15 +23,19 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"Using device: {device.upper()}")
 
 # Instantiate wrappers (they lazy-load, so lightweight init)
-kokoro_wrapper = KokoroVietnameseWrapper(device=device)
-vits_wrapper = MMSVitsWrapper(device=device)
 voxcpm_wrapper = VoxCPMWrapper(device=device)
+omnivoice_wrapper = OmniVoiceWrapper(device=device)
+moss_lt_wrapper = MOSSTTSLocalTransformerWrapper(device=device)
+moss_v15_wrapper = MOSSTTSWrapper(device=device)
+higgs_wrapper = HiggsAudioV3Wrapper(device=device)
 
 # Available models dict
 MODELS = {
-    "Kokoro-Vietnamese (contextboxai/Kokoro-Vietnamese)": kokoro_wrapper,
-    "Meta MMS VITS (facebook/mms-tts-vie)": vits_wrapper,
-    "OpenBMB VoxCPM2 (openbmb/VoxCPM2)": voxcpm_wrapper
+    "OpenBMB VoxCPM2 (openbmb/VoxCPM2)": voxcpm_wrapper,
+    "OmniVoice (k2-fsa/OmniVoice)": omnivoice_wrapper,
+    "MOSS-TTS Local-Transformer v1.5 (OpenMOSS-Team)": moss_lt_wrapper,
+    "MOSS-TTS v1.5 8B (OpenMOSS-Team)": moss_v15_wrapper,
+    "Higgs Audio TTS v3 4B (bosonai/higgs-audio-v3-tts-4b)": higgs_wrapper,
 }
 
 # Default sample text
@@ -160,15 +165,19 @@ def update_voice_sample(model_name, voice_str):
     if not voice_str:
         return None
     voice_id = voice_str.split(" ")[0]
-    if "Kokoro-Vietnamese" in model_name:
-        path = f"assets/samples/kokoro_{voice_id}.wav"
-    elif "Meta MMS VITS" in model_name:
-        path = "assets/samples/vits_mms_vietnamese.wav"
-    elif "VoxCPM2" in model_name:
-        path = f"assets/samples/voxcpm_{voice_id}.wav"
+    if "VoxCPM2" in model_name:
+        path = f"assets/samples/voxcpm/{voice_id}.wav"
+    elif "OmniVoice" in model_name:
+        path = f"assets/samples/omnivoice/{voice_id}.wav"
+    elif "MOSS-TTS Local-Transformer" in model_name:
+        path = f"assets/samples/moss_lt/{voice_id}.wav"
+    elif "MOSS-TTS v1.5 8B" in model_name:
+        path = f"assets/samples/moss_v15/{voice_id}.wav"
+    elif "Higgs Audio" in model_name:
+        path = f"assets/samples/higgs_v3/{voice_id}.wav"
     else:
         return None
-        
+
     if os.path.exists(path):
         return os.path.abspath(path)
     return None

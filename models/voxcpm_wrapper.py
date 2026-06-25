@@ -9,26 +9,26 @@ class VoxCPMWrapper(BaseTTSModel):
     # We design custom synthetic voices using the Voice Design prompt feature of VoxCPM2
     VOICES = {
         'giong_nu_mien_nam': {
-            'name': 'Giọng Nữ Miền Nam (Voice Design)',
-            'prompt': '(A sweet, warm, and clear Southern Vietnamese female voice) ',
+            'name': 'Hà Linh (Nữ, Miền Nam)',
+            'prompt': '(A sweet, warm, and naturally clear Southern Vietnamese female voice with smooth and gentle pronunciation) ',
             'gender': 'Female (Nữ)',
             'region': 'Southern (Miền Nam)'
         },
         'giong_nam_mien_bac': {
-            'name': 'Giọng Nam Miền Bắc (Voice Design)',
-            'prompt': '(A deep, natural, and confident Northern Vietnamese male voice) ',
+            'name': 'Quang Minh (Nam, Miền Bắc)',
+            'prompt': '(A deep, confident, and articulate Northern Vietnamese male voice with authoritative and professional delivery) ',
             'gender': 'Male (Nam)',
             'region': 'Northern (Miền Bắc)'
         },
         'giong_nu_mien_bac': {
-            'name': 'Giọng Nữ Miền Bắc (Voice Design)',
-            'prompt': '(A gentle, soft, and expressive Northern Vietnamese female voice) ',
+            'name': 'Thu Hà (Nữ, Miền Bắc)',
+            'prompt': '(A gentle, soft, and expressive Northern Vietnamese female voice with clear pronunciation and elegant tone) ',
             'gender': 'Female (Nữ)',
             'region': 'Northern (Miền Bắc)'
         },
         'giong_nam_mien_nam': {
-            'name': 'Giọng Nam Miền Nam (Voice Design)',
-            'prompt': '(A friendly, warm, and clear Southern Vietnamese male voice) ',
+            'name': 'Bảo Long (Nam, Miền Nam)',
+            'prompt': '(A friendly, warm, and naturally flowing Southern Vietnamese male voice with relaxed and approachable tone) ',
             'gender': 'Male (Nam)',
             'region': 'Southern (Miền Nam)'
         }
