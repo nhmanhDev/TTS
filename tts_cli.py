@@ -24,10 +24,14 @@ sys.path.append(str(Path(__file__).parent.resolve()))
 from models.kokoro_wrapper import KokoroVietnameseWrapper
 from models.vits_wrapper import MMSVitsWrapper
 from models.voxcpm_wrapper import VoxCPMWrapper
+from models.vieneu_wrapper import VieNeuWrapper
+from models.vixtts_wrapper import ViXTTSWrapper
 
 def main():
     parser = argparse.ArgumentParser(description="Vietnamese TTS Command Line Interface")
-    parser.add_argument("--model", type=str, required=True, choices=["kokoro", "vits", "voxcpm"], help="Model type to use")
+    parser.add_argument("--model", type=str, required=True, 
+                        choices=["kokoro", "vits", "voxcpm", "vieneu", "vixtts"], 
+                        help="Model type to use")
     parser.add_argument("--voice", type=str, required=True, help="Voice ID")
     parser.add_argument("--text", type=str, required=True, help="Text to synthesize")
     parser.add_argument("--speed", type=float, default=1.0, help="Speaking speed")
@@ -43,6 +47,10 @@ def main():
         wrapper = MMSVitsWrapper(device=device)
     elif args.model == "voxcpm":
         wrapper = VoxCPMWrapper(device=device)
+    elif args.model == "vieneu":
+        wrapper = VieNeuWrapper(device="cpu")  # VieNeu ONNX only on CPU
+    elif args.model == "vixtts":
+        wrapper = ViXTTSWrapper(device=device)
     else:
         print(json.dumps({"success": False, "error": f"Unknown model: {args.model}"}))
         return

@@ -56,6 +56,29 @@ const MODELS = {
       { id: 'giong_nu_mien_bac', name: 'Giọng Nữ Miền Bắc', gender: 'Nữ', region: 'Miền Bắc' },
       { id: 'giong_nam_mien_nam', name: 'Giọng Nam Miền Nam', gender: 'Nam', region: 'Miền Nam' }
     ]
+  },
+  vieneu: {
+    name: "VieNeu-TTS v3 Turbo (pnnbao97/vieneu)",
+    description: "Mô hình TTS 48kHz hỗ trợ song ngữ Anh-Việt, cảm xúc, và 10 giọng đọc mẫu. Chạy ONNX trên CPU siêu nhanh.",
+    voices: [
+      { id: 'ngoc_lan', name: 'Ngọc Lan', gender: 'Nữ', region: 'Giọng dịu dàng' },
+      { id: 'gia_bao', name: 'Gia Bảo', gender: 'Nam', region: 'Giọng mượt mà' },
+      { id: 'thai_son', name: 'Thái Sơn', gender: 'Nam', region: 'Giọng chắc khỏe' },
+      { id: 'duc_tri', name: 'Đức Trí', gender: 'Nam', region: 'Giọng rõ ràng' },
+      { id: 'my_duyen', name: 'Mỹ Duyên', gender: 'Nữ', region: 'Giọng mượt mà' },
+      { id: 'truc_ly', name: 'Trúc Ly', gender: 'Nữ', region: 'Giọng trẻ trung' },
+      { id: 'xuan_vinh', name: 'Xuân Vĩnh', gender: 'Nam', region: 'Giọng vui tươi' },
+      { id: 'trong_huu', name: 'Trọng Hữu', gender: 'Nam', region: 'Giọng uyên bác' },
+      { id: 'binh_an', name: 'Bình An', gender: 'Nam', region: 'Giọng điềm đạm' },
+      { id: 'ngoc_linh', name: 'Ngọc Linh', gender: 'Nữ', region: 'Giọng tươi sáng' }
+    ]
+  },
+  vixtts: {
+    name: "viXTTS (capleaf/viXTTS)",
+    description: "Fine-tuned từ XTTS-v2, hỗ trợ nhân bản giọng nói (voice cloning) tiếng Việt chỉ từ 6 giây audio mẫu.",
+    voices: [
+      { id: 'vixtts_default', name: 'viXTTS Default', gender: 'Nữ', region: 'Giọng Việt tự nhiên' }
+    ]
   }
 };
 
@@ -68,14 +91,7 @@ app.get('/api/models', (req, res) => {
       name: modelData.name,
       description: modelData.description,
       voices: modelData.voices.map(voice => {
-        let sampleFilename = '';
-        if (modelKey === 'kokoro') {
-          sampleFilename = `kokoro_${voice.id}.wav`;
-        } else if (modelKey === 'vits') {
-          sampleFilename = 'vits_mms_vietnamese.wav';
-        } else if (modelKey === 'voxcpm') {
-          sampleFilename = `voxcpm_${voice.id}.wav`;
-        }
+        const sampleFilename = `${modelKey}_${voice.id}.wav`;
         
         const sampleRelativePath = path.join('assets', 'samples', sampleFilename);
         const sampleAbsolutePath = path.join(__dirname, sampleRelativePath);
@@ -113,7 +129,8 @@ app.post('/api/synthesize', (req, res) => {
   
   console.log(`Executing: ${pythonPath} ${args.join(' ')}`);
   
-  execFile(pythonPath, args, { maxBuffer: 1024 * 1024 * 10 }, (error, stdout, stderr) => {
+  // Increase timeout to 5 minutes for large models like viXTTS
+  execFile(pythonPath, args, { maxBuffer: 1024 * 1024 * 10, timeout: 300000 }, (error, stdout, stderr) => {
     if (error) {
       console.error(`Exec error: ${error}`);
       console.error(`Stderr: ${stderr}`);
